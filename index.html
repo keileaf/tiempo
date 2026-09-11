@@ -86,7 +86,6 @@
     <span id="modeBadge" class="badge text-bg-primary font-monospace">MODO ESTÁNDAR</span>
   </div>
 
-  <!-- Vista Previa Completa de 32x16 LEDs -->
   <div class="matrix-bezel mb-4">
     <canvas id="matrixCanvas" width="320" height="160"></canvas>
   </div>
@@ -97,7 +96,7 @@
         <label for="msgInput" class="fw-semibold text-light">Mensaje o Caracteres CJK</label>
         <span id="charCount" class="text-secondary">5 / 100</span>
       </div>
-      <input type="text" class="form-control" id="msgInput" maxlength="100" value="HOLA!" placeholder="Prueba con: MÉXICO, 猫, 東京, 사랑..." required autocomplete="off">
+      <input type="text" class="form-control" id="msgInput" maxlength="100" value="HOLA!" placeholder="Prueba con: MÉXICO, 中国人民银行, 猫, 東京..." required autocomplete="off">
     </div>
 
     <div class="mb-3">
@@ -137,27 +136,29 @@
 <script>
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzjY-RV8xyq_nFpt3HRUB4HrHyg8w55Ypx1BJtBY09mzx0EWte-kayNNWGLh9j2EQL1OA/exec";
 
-  // Detección de caracteres Chinos, Japoneses o Coreanos
   function hasCJK(text) {
     return /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f\uac00-\ud7af]/.test(text);
   }
 
-  // Rasterizador en cliente: convierte texto CJK en columnas de 16 bits
   function rasterizeCJK(text) {
     const off = document.createElement('canvas');
     const octx = off.getContext('2d', { willReadFrequently: true });
     
-    // Configuración tipográfica para 16px
-    const fontStr = 'bold 14px "Noto Sans CJK JP", "Meiryo", "PingFang SC", "Malgun Gothic", sans-serif';
+    // Peso normal y tamaño 13px para evitar saturar trazos densos
+    const fontStr = 'normal 13px "Noto Sans CJK SC", "SimSun", "Microsoft YaHei", "PingFang SC", sans-serif';
     octx.font = fontStr;
-    const tw = Math.ceil(octx.measureText(text).width);
     
-    off.width = tw + 2;
+    const tw = Math.ceil(octx.measureText(text).width);
+    off.width = tw + 4;
     off.height = 16;
+    
+    octx.fillStyle = '#000000';
+    octx.fillRect(0, 0, off.width, off.height);
+    
     octx.font = fontStr;
     octx.textBaseline = 'middle';
     octx.fillStyle = '#ffffff';
-    octx.fillText(text, 1, 8);
+    octx.fillText(text, 2, 8);
 
     const img = octx.getImageData(0, 0, off.width, 16).data;
     let hex = "";
@@ -167,9 +168,15 @@
       let word = 0;
       for (let y = 0; y < 16; y++) {
         const idx = (y * off.width + x) * 4;
-        const alpha = img[idx + 3];
-        const lum = img[idx] + img[idx + 1] + img[idx + 2];
-        if (alpha > 80 && lum > 120) {
+        const r = img[idx];
+        const g = img[idx + 1];
+        const b = img[idx + 2];
+        const alpha = img[idx + 3] / 255;
+        
+        const brightness = (0.299 * r + 0.587 * g + 0.114 * b) * alpha;
+        
+        // Umbral estricto para trazos nítidos de 1px
+        if (brightness > 135) {
           word |= (1 << y);
         }
       }
@@ -179,7 +186,6 @@
     return { hex, cols, width: off.width };
   }
 
-  // Glifos 4x5 Proporcionales para texto estándar y acentos
   const GLYPHS = {
     '0':[6,9,9,9,6],'1':[2,6,2,2,7],'2':[14,1,6,8,15],'3':[14,1,6,1,14],'4':[9,9,15,1,1],
     '5':[15,8,14,1,14],'6':[7,8,14,9,6],'7':[15,1,2,4,4],'8':[6,9,6,9,6],'9':[6,9,7,1,14],
@@ -233,7 +239,6 @@
     ctx.fillStyle = '#05070a';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Dibuja la cuadrícula base de 32x16 LEDs
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
         let x = c * (LED_SIZE + GAP) + 2;
@@ -304,11 +309,9 @@
       modeBadge.className = "badge text-bg-primary font-monospace";
       modeBadge.textContent = "MODO ESTÁNDAR";
 
-      // Fila Superior (Simulada): "12:30  22°"
       drawMockText(1, 2, "12:30", "#00c8ff");
       drawMockText(18, 2, "22°", "#ffffff");
 
-      // Fila Inferior (Y=10): Mensaje proporcional con tildes
       const text = rawText.toUpperCase();
       const strW = getMsgWidth(text);
       let startX = 0;
@@ -346,7 +349,7 @@
             for (let c = 0; c < w; c++) {
               if (rowBits & (1 << (w - 1 - c))) {
                 const gx = curX + c;
-                const gy = 10 + r; // Fila inferior real
+                const gy = 10 + r;
                 if (gx >= 0 && gx < COLS && gy < ROWS) {
                   const px = gx * (LED_SIZE + GAP) + 2;
                   const py = gy * (LED_SIZE + GAP) + 2;
@@ -423,7 +426,6 @@
       color: colorInput.value
     };
 
-    // Si es CJK, se agrega la codificación hexadecimal en 16 bits
     if (isAsian) {
       const cjk = rasterizeCJK(val);
       payloadData.cjk = cjk.hex;
