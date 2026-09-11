@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel de Control | Matriz LED 32×16</title>
+  <title>Panel de Control v3.0 | Matriz LED 32×16 (100 Chars)</title>
   <!-- Bootstrap 5.3 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Bootstrap Icons -->
@@ -50,8 +50,8 @@
     }
     .form-control:focus, .form-select:focus {
       background-color: #0a0e17;
-      border-color: #00d2ff;
-      box-shadow: 0 0 10px rgba(0, 210, 255, 0.25);
+      border-color: #bd00ff;
+      box-shadow: 0 0 10px rgba(189, 0, 255, 0.25);
       color: #fff;
     }
     .color-preset {
@@ -67,7 +67,7 @@
       border-color: #fff;
     }
     .btn-transmit {
-      background: linear-gradient(135deg, #00c6ff 0%, #7b2cbf 100%);
+      background: linear-gradient(135deg, #bd00ff 0%, #00d9ff 100%);
       border: none;
       font-weight: 600;
       padding: 0.8rem;
@@ -78,14 +78,18 @@
       transform: translateY(-1px);
       filter: brightness(1.1);
     }
+    .small-info {
+      font-size: 0.8rem;
+      color: #a0aec0;
+    }
   </style>
 </head>
 <body>
 
 <div class="panel-card p-4">
   <div class="d-flex align-items-center justify-content-between mb-3">
-    <h5 class="fw-bold text-white mb-0"><i class="bi bi-cpu text-info me-2"></i>Matriz 32×16</h5>
-    <span class="badge text-bg-dark border border-secondary border-opacity-25 font-monospace">PREVIEW EN VIVO</span>
+    <h5 class="fw-bold text-white mb-0"><i class="bi bi-cpu text-info me-2"></i>Matriz Control</h5>
+    <span class="badge text-bg-dark border border-secondary border-opacity-25 font-monospace">100 CHARS MAX</span>
   </div>
 
   <!-- Rejilla de Visualización LED -->
@@ -94,21 +98,21 @@
   </div>
 
   <form id="matrixForm">
-    <!-- Entrada de Texto -->
+    <!-- Entrada de Texto (MODIFICADO: maxlength="100") -->
     <div class="mb-3">
       <div class="d-flex justify-content-between small mb-1">
-        <label for="msgInput" class="fw-semibold text-light">Mensaje inferior</label>
-        <span id="charCount" class="text-secondary">5 / 30</span>
+        <label for="msgInput" class="fw-semibold text-light">Mensaje inferior (Y=10, 4x5 Prop)</label>
+        <span id="charCount" class="text-secondary small-info">5 / 100</span>
       </div>
-      <input type="text" class="form-control" id="msgInput" maxlength="30" value="HOLA!" placeholder="Escribe un mensaje..." required autocomplete="off">
+      <input type="text" class="form-control" id="msgInput" maxlength="100" value="HOLA!" placeholder="Escribe un mensaje súper largo..." required autocomplete="off">
     </div>
 
     <!-- Selector de Efecto -->
     <div class="mb-3">
       <label for="effectSelect" class="form-label small fw-semibold text-light mb-1">Efecto visual</label>
       <select class="form-select" id="effectSelect">
-        <option value="scroll" selected>Desplazamiento (Scroll continuo)</option>
-        <option value="fixed">Fijo centrado</option>
+        <option value="scroll" selected>Desplazamiento (Scroll)</option>
+        <option value="fixed">Fijo centrado (Hasta 6 chars)</option>
         <option value="blink">Parpadeo suave</option>
         <option value="rainbow">Arcoíris dinámico</option>
       </select>
@@ -116,26 +120,26 @@
 
     <!-- Selector de Color -->
     <div class="mb-4">
-      <label class="form-label small fw-semibold text-light mb-2">Color del Texto</label>
+      <label class="form-label small fw-semibold text-light mb-2">Color del Texto Neón</label>
       <div class="d-flex align-items-center gap-2">
-        <input type="color" class="form-control form-control-color border-0 p-1" id="colorInput" value="#00ff66" title="Selector de color libre">
+        <input type="color" class="form-control form-control-color border-0 p-1" id="colorInput" value="#bd00ff" title="Selector libre">
         <div class="d-flex gap-2 ms-2">
-          <div class="color-preset" style="background:#00ff66;" data-color="#00ff66" title="Verde Esmeralda"></div>
+          <div class="color-preset" style="background:#bd00ff;" data-color="#bd00ff" title="Morado Neón"></div>
           <div class="color-preset" style="background:#00d9ff;" data-color="#00d9ff" title="Cian Neón"></div>
+          <div class="color-preset" style="background:#00ff66;" data-color="#00ff66" title="Verde Esmeralda"></div>
           <div class="color-preset" style="background:#ff0055;" data-color="#ff0055" title="Rosa Neón"></div>
           <div class="color-preset" style="background:#ffb700;" data-color="#ffb700" title="Ámbar / Amarillo"></div>
-          <div class="color-preset" style="background:#bd00ff;" data-color="#bd00ff" title="Morado Neón"></div>
           <div class="color-preset" style="background:#ffffff;" data-color="#ffffff" title="Blanco Frío"></div>
         </div>
       </div>
       <div id="rainbowNotice" class="form-text text-warning small d-none mt-1">
-        <i class="bi bi-info-circle"></i> En modo Arcoíris los colores se generan automáticamente.
+        <i class="bi bi-info-circle"></i> En modo Arcoíris los colores se ignoran.
       </div>
     </div>
 
     <button type="submit" class="btn btn-transmit text-white w-100 d-flex align-items-center justify-content-center gap-2" id="submitBtn">
       <i class="bi bi-send-fill"></i>
-      <span>Transmitir a la Matriz</span>
+      <span>Transmitir Mensaje Largo</span>
     </button>
   </form>
 
@@ -143,34 +147,41 @@
 </div>
 
 <script>
+  // URL DEL SCRIPT DE GOOGLE (Reemplazar con la tuya)
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzjY-RV8xyq_nFpt3HRUB4HrHyg8w55Ypx1BJtBY09mzx0EWte-kayNNWGLh9j2EQL1OA/exec";
 
-  // Tipografía 3x5 idéntica a la ESP32 (números, letras y signos especiales)
+  // =========================================================================
+  // MOTOR DE RENDERIZADO PROPORCIONAL v2.0 (Emula ESP32)
+  // =========================================================================
+
+  // Matriz de glifos Hex correspondientes a la fuente 4x5 PROPORCIONAL
   const GLYPHS = {
-    '0':[7,5,5,5,7],'1':[2,6,2,2,7],'2':[7,1,7,4,7],'3':[7,1,7,1,7],'4':[5,5,7,1,1],
-    '5':[7,4,7,1,7],'6':[7,4,7,5,7],'7':[7,1,2,2,2],'8':[7,5,7,5,7],'9':[7,5,7,1,7],
-    'A':[7,5,7,5,5],'B':[6,5,6,5,6],'C':[7,4,4,4,7],'D':[6,5,5,5,6],'E':[7,4,6,4,7],
-    'F':[7,4,6,4,4],'G':[7,4,5,5,7],'H':[5,5,7,5,5],'I':[7,2,2,2,7],'J':[1,1,1,5,7],
-    'K':[5,6,4,6,5],'L':[4,4,4,4,7],'M':[5,7,5,5,5],'N':[7,5,5,5,5],'O':[7,5,5,5,7],
-    'P':[7,5,7,4,4],'Q':[7,5,5,7,1],'R':[6,5,6,5,5],'S':[7,4,7,1,7],'T':[7,2,2,2,2],
-    'U':[5,5,5,5,7],'V':[5,5,5,5,2],'W':[5,5,5,7,5],'X':[5,5,2,5,5],'Y':[5,5,2,2,2],
-    'Z':[7,1,2,4,7],
-    '!':[4,4,4,0,4],'.':[0,0,0,0,4],':':[0,4,0,4,0],'\'':[4,4,0,0,0],'|':[4,4,4,4,4],
-    ',':[0,0,0,2,4],';':[0,2,0,2,4],'(':[2,4,4,4,2],')':[4,2,2,2,4],'[':[6,4,4,4,6],
-    ']':[6,2,2,2,6],'{':[2,4,6,4,2],'}':[4,2,6,2,4],'@':[7,5,7,4,3],'#':[2,7,2,7,2],
-    '$':[2,6,2,3,2],'%':[5,1,2,4,5],'^':[2,5,0,0,0],'&':[2,5,2,5,7],'*':[0,5,2,5,0],
-    '?':[6,1,2,0,2],'-':[0,0,7,0,0],'/':[1,1,2,4,4],'\\':[4,4,2,1,1],'"':[5,5,0,0,0],
-    ' ':[0,0,0,0,0]
+    '0':[6,9,9,9,6],'1':[2,6,2,2,7],'2':[14,1,6,8,15],'3':[14,1,6,1,14],'4':[9,9,15,1,1],
+    '5':[15,8,14,1,14],'6':[7,8,14,9,6],'7':[15,1,2,4,4],'8':[6,9,6,9,6],'9':[6,9,7,1,14],
+    'A':[6,9,15,9,9],'B':[14,9,14,9,14],'C':[7,8,8,8,7],'D':[14,9,9,9,14],'E':[15,8,14,8,15],
+    'F':[15,8,14,8,8],'G':[7,8,11,9,7],'H':[9,9,15,9,9],'I':[7,2,2,2,7],'J':[3,1,1,9,6],
+    'K':[9,10,12,10,9],'L':[8,8,8,8,15],'M':[17,27,21,17,17],'N':[9,13,11,9,9],'O':[6,9,9,9,6],
+    'P':[14,9,14,8,8],'Q':[6,9,9,6,1],'R':[14,9,14,10,9],'S':[7,8,6,1,14],'T':[15,6,6,6,6],
+    'U':[9,9,9,9,6],'V':[9,9,9,6,6],'W':[17,17,21,27,17],'X':[9,9,6,9,9],'Y':[9,9,6,4,4],
+    'Z':[15,2,4,8,15],
+    '!':[1,1,1,0,1],'.':[0,0,0,0,1],':':[0,1,0,1,0],'\'':[1,1,0,0,0],'|':[1,1,1,1,1],
+    ',':[0,0,0,2,1],';':[0,2,0,2,1],'(':[1,2,2,2,1],')':[2,1,1,1,2],'[':[3,2,2,2,3],
+    ']':[3,1,1,1,3],'{':[1,2,3,2,1],'}':[2,1,3,1,2],'?':[14,1,6,0,4],'-':[0,0,15,0,0],
+    '@':[14,17,23,16,15],'#':[5,15,5,15,5],'$':[4,14,4,7,4],'%':[25,26,4,11,19],'^':[2,5,0,0,0],
+    '&':[6,6,9,9,7],'*':[5,2,5,0,0],'/':[1,2,2,4,4],'\\':[4,2,2,1,1],'"':[5,5,0,0,0],' ':[0,0,0,0,0]
   };
 
+  // Espaciado dinámico proporcional por carácter
   function getCharWidth(c) {
     if (c === ' ') return 2;
     if (c === '!' || c === '.' || c === ':' || c === '\'' || c === '|') return 1;
     if (c === ',' || c === ';' || c === '(' || c === ')' || c === '[' || c === ']' || c === '{' || c === '}') return 2;
-    return 3;
+    if (c === 'I' || c === '1' || c === '*' || c === '^' || c === '/') return 3;
+    if (c === 'M' || c === 'W' || c === '@' || c === '%') return 5;
+    return 4; // Ancho estándar para el resto
   }
 
-  function getStringWidth(str) {
+  function getMsgStringWidth(str) {
     let w = 0;
     for (let c of str) w += getCharWidth(c) + 1;
     return w > 0 ? w - 1 : 0;
@@ -184,8 +195,9 @@
   const charCount = document.getElementById('charCount');
   const rainbowNotice = document.getElementById('rainbowNotice');
 
+  // Parámetros de visualización (simulan el espacio inferior)
   const COLS = 32;
-  const ROWS = 7;
+  const ROWS = 7; // El espacio inferior libre para el mensaje
   const LED_SIZE = 8;
   const GAP = 2;
 
@@ -211,11 +223,12 @@
     const text = msgInput.value.toUpperCase();
     const effect = effectSelect.value;
     const baseColor = colorInput.value;
-    const strW = getStringWidth(text);
+    const strW = getMsgStringWidth(text);
 
     let startX = 0;
     let visible = true;
 
+    // Control de animación según el efecto (Emula loop() de ESP32)
     if (effect === 'fixed') {
       startX = Math.floor((COLS - strW) / 2);
     } else if (effect === 'blink') {
@@ -225,7 +238,7 @@
       if (strW <= COLS) {
         startX = Math.floor((COLS - strW) / 2);
       } else {
-        if (timestamp - lastScrollUpdate > 65) {
+        if (timestamp - lastScrollUpdate > 65) { // Velocidad scroll (55ms/px aprox)
           previewScrollX--;
           if (previewScrollX < -strW) previewScrollX = COLS;
           lastScrollUpdate = timestamp;
@@ -241,57 +254,69 @@
       startX = previewScrollX;
     }
 
+    // Renderizado proporcional de caracteres en Y=10 (Grid Row 1)
     if (visible && text.length > 0) {
       let curX = startX;
       for (let i = 0; i < text.length; i++) {
         const char = text[i];
-        const glyph = GLYPHS[char] || GLYPHS[' '];
-        const w = getCharWidth(char);
+        const glyph = GLYPHS[char] || GLYPHS[' ']; // defined above hex map
+        const w = getCharWidth(char); // defined above proportional map
 
         let charColor = baseColor;
         if (effect === 'rainbow') {
-          const hue = ((timestamp / 25) + (i * 24)) % 360;
+          // Emula CHSV(baseHue + (i * 18), 240, 255)
+          const hue = ((timestamp / 25) + (i * 24)) % 360; 
           charColor = `hsl(${hue}, 100%, 55%)`;
         }
 
+        // Dibujar glifo (5 píxeles de alto)
         for (let r = 0; r < 5; r++) {
           const rowBits = glyph[r];
           for (let col = 0; col < w; col++) {
-            const bit = (rowBits & (0b100 >> col));
+            // Lógica de extracción de bits idéntica a drawMsgChar de Arduino
+            const bit = (rowBits & (1 << (w - 1 - col)));
+
             if (bit) {
               const gridX = curX + col;
-              const gridY = 1 + r;
+              const gridY = 1 + r; // DIBUJA EN EL ROW 1 DEL CANVAS (Simula Y=10 en la pantalla real)
 
+              // Dibujar el LED si está dentro del ancho de la pantalla
               if (gridX >= 0 && gridX < COLS && gridY >= 0 && gridY < ROWS) {
                 const px = gridX * (LED_SIZE + GAP) + 2;
                 const py = gridY * (LED_SIZE + GAP) + 2;
 
+                // Efecto glow (resplandor neón)
                 ctx.shadowColor = charColor;
                 ctx.shadowBlur = 6;
                 ctx.fillStyle = charColor;
                 ctx.beginPath();
                 ctx.arc(px + LED_SIZE/2, py + LED_SIZE/2, LED_SIZE/2 - 1, 0, Math.PI * 2);
                 ctx.fill();
-                ctx.shadowBlur = 0;
+                ctx.shadowBlur = 0; // Reset
               }
             }
           }
         }
-        curX += w + 1;
+        curX += w + 1; // Avanzar el ancho proporcional + 1 px de espacio
       }
     }
 
     requestAnimationFrame(renderPreview);
   }
-  requestAnimationFrame(renderPreview);
+  requestAnimationFrame(renderPreview); // Lanzar el loop de renderizado
 
+  // =========================================================================
+  // CONTROL DE INTERFAZ Y ENVÍO
+  // =========================================================================
+
+  // Actualización del contador de caracteres
   msgInput.addEventListener('input', () => {
-    charCount.textContent = `${msgInput.value.length} / 30`;
-    previewScrollX = COLS;
+    charCount.textContent = `${msgInput.value.length} / 100`;
+    previewScrollX = COLS; // Reset scroll si se edita
   });
 
   effectSelect.addEventListener('change', () => {
-    previewScrollX = COLS;
+    previewScrollX = COLS; // Reset scroll si cambia efecto
     rainbowNotice.classList.toggle('d-none', effectSelect.value !== 'rainbow');
   });
 
@@ -301,6 +326,7 @@
     });
   });
 
+  // Envío del formulario
   const form = document.getElementById('matrixForm');
   const btn = document.getElementById('submitBtn');
   const alertBox = document.getElementById('statusAlert');
@@ -314,27 +340,34 @@
     btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status"></span> Transmitiendo...`;
     alertBox.className = "alert d-none";
 
+    // Preparar JSON según el formato esperado por Google Apps Script
+    const data = {
+      text: textVal,
+      effect: effectSelect.value,
+      color: colorInput.value
+    };
+
     try {
+      // POST sin CORS (no-cors) hacia la URL de Google Apps Script
       await fetch(SCRIPT_URL, {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({
-          text: textVal,
-          effect: effectSelect.value,
-          color: colorInput.value
-        })
+        body: JSON.stringify(data)
       });
 
+      // Éxito
       alertBox.className = "alert alert-success mt-3 text-center small py-2 bg-success bg-opacity-25 border border-success border-opacity-50 text-white";
-      alertBox.innerHTML = `<i class="bi bi-check2-circle me-1"></i> ¡Transmitido con éxito!`;
+      alertBox.innerHTML = `<i class="bi bi-check2-circle me-1"></i> ¡Transmitido con éxito al Google Sheet!`;
     } catch (err) {
+      // Error
       alertBox.className = "alert alert-danger mt-3 text-center small py-2 bg-danger bg-opacity-25 border border-danger border-opacity-50 text-white";
-      alertBox.innerText = "Error al intentar transmitir a la hoja.";
+      alertBox.innerText = "Error al conectar con Google Sheets. Revisa la URL.";
     } finally {
       btn.disabled = false;
-      btn.innerHTML = `<i class="bi bi-send-fill"></i> Transmitir a la Matriz`;
-      setTimeout(() => alertBox.classList.add('d-none'), 5000);
+      btn.innerHTML = `<i class="bi bi-send-fill"></i> Transmitir Mensaje Largo`;
+      // Ocultar alerta automáticamente
+      setTimeout(() => alertBox.classList.add('d-none'), 6000);
     }
   });
 </script>
