@@ -3,10 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel de Control v3.0 | Matriz LED 32×16 (100 Chars)</title>
-  <!-- Bootstrap 5.3 CSS -->
+  <title>Panel de Control Universal | Matriz LED 32×16</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <style>
     :root {
@@ -27,7 +25,7 @@
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 1.25rem;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
-      max-width: 520px;
+      max-width: 540px;
       width: 100%;
     }
     .matrix-bezel {
@@ -50,8 +48,8 @@
     }
     .form-control:focus, .form-select:focus {
       background-color: #0a0e17;
-      border-color: #bd00ff;
-      box-shadow: 0 0 10px rgba(189, 0, 255, 0.25);
+      border-color: #00d9ff;
+      box-shadow: 0 0 10px rgba(0, 217, 255, 0.25);
       color: #fff;
     }
     .color-preset {
@@ -67,7 +65,7 @@
       border-color: #fff;
     }
     .btn-transmit {
-      background: linear-gradient(135deg, #bd00ff 0%, #00d9ff 100%);
+      background: linear-gradient(135deg, #00d9ff 0%, #bd00ff 100%);
       border: none;
       font-weight: 600;
       padding: 0.8rem;
@@ -78,68 +76,58 @@
       transform: translateY(-1px);
       filter: brightness(1.1);
     }
-    .small-info {
-      font-size: 0.8rem;
-      color: #a0aec0;
-    }
   </style>
 </head>
 <body>
 
 <div class="panel-card p-4">
   <div class="d-flex align-items-center justify-content-between mb-3">
-    <h5 class="fw-bold text-white mb-0"><i class="bi bi-cpu text-info me-2"></i>Matriz Control</h5>
-    <span class="badge text-bg-dark border border-secondary border-opacity-25 font-monospace">100 CHARS MAX</span>
+    <h5 class="fw-bold text-white mb-0"><i class="bi bi-display text-info me-2"></i>Matriz 32×16</h5>
+    <span id="modeBadge" class="badge text-bg-primary font-monospace">MODO ESTÁNDAR</span>
   </div>
 
-  <!-- Rejilla de Visualización LED -->
+  <!-- Vista Previa Completa de 32x16 LEDs -->
   <div class="matrix-bezel mb-4">
-    <canvas id="matrixCanvas" width="320" height="70"></canvas>
+    <canvas id="matrixCanvas" width="320" height="160"></canvas>
   </div>
 
   <form id="matrixForm">
-    <!-- Entrada de Texto (MODIFICADO: maxlength="100") -->
     <div class="mb-3">
       <div class="d-flex justify-content-between small mb-1">
-        <label for="msgInput" class="fw-semibold text-light">Mensaje inferior (Y=10, 4x5 Prop)</label>
-        <span id="charCount" class="text-secondary small-info">5 / 100</span>
+        <label for="msgInput" class="fw-semibold text-light">Mensaje o Caracteres CJK</label>
+        <span id="charCount" class="text-secondary">5 / 100</span>
       </div>
-      <input type="text" class="form-control" id="msgInput" maxlength="100" value="HOLA!" placeholder="Escribe un mensaje súper largo..." required autocomplete="off">
+      <input type="text" class="form-control" id="msgInput" maxlength="100" value="HOLA!" placeholder="Prueba con: MÉXICO, 猫, 東京, 사랑..." required autocomplete="off">
     </div>
 
-    <!-- Selector de Efecto -->
     <div class="mb-3">
       <label for="effectSelect" class="form-label small fw-semibold text-light mb-1">Efecto visual</label>
       <select class="form-select" id="effectSelect">
         <option value="scroll" selected>Desplazamiento (Scroll)</option>
-        <option value="fixed">Fijo centrado (Hasta 6 chars)</option>
+        <option value="fixed">Fijo centrado</option>
         <option value="blink">Parpadeo suave</option>
         <option value="rainbow">Arcoíris dinámico</option>
       </select>
     </div>
 
-    <!-- Selector de Color -->
     <div class="mb-4">
-      <label class="form-label small fw-semibold text-light mb-2">Color del Texto Neón</label>
+      <label class="form-label small fw-semibold text-light mb-2">Color del Texto</label>
       <div class="d-flex align-items-center gap-2">
-        <input type="color" class="form-control form-control-color border-0 p-1" id="colorInput" value="#bd00ff" title="Selector libre">
+        <input type="color" class="form-control form-control-color border-0 p-1" id="colorInput" value="#00ff66">
         <div class="d-flex gap-2 ms-2">
-          <div class="color-preset" style="background:#bd00ff;" data-color="#bd00ff" title="Morado Neón"></div>
-          <div class="color-preset" style="background:#00d9ff;" data-color="#00d9ff" title="Cian Neón"></div>
-          <div class="color-preset" style="background:#00ff66;" data-color="#00ff66" title="Verde Esmeralda"></div>
-          <div class="color-preset" style="background:#ff0055;" data-color="#ff0055" title="Rosa Neón"></div>
-          <div class="color-preset" style="background:#ffb700;" data-color="#ffb700" title="Ámbar / Amarillo"></div>
-          <div class="color-preset" style="background:#ffffff;" data-color="#ffffff" title="Blanco Frío"></div>
+          <div class="color-preset" style="background:#00ff66;" data-color="#00ff66"></div>
+          <div class="color-preset" style="background:#00d9ff;" data-color="#00d9ff"></div>
+          <div class="color-preset" style="background:#bd00ff;" data-color="#bd00ff"></div>
+          <div class="color-preset" style="background:#ff0055;" data-color="#ff0055"></div>
+          <div class="color-preset" style="background:#ffb700;" data-color="#ffb700"></div>
+          <div class="color-preset" style="background:#ffffff;" data-color="#ffffff"></div>
         </div>
-      </div>
-      <div id="rainbowNotice" class="form-text text-warning small d-none mt-1">
-        <i class="bi bi-info-circle"></i> En modo Arcoíris los colores se ignoran.
       </div>
     </div>
 
     <button type="submit" class="btn btn-transmit text-white w-100 d-flex align-items-center justify-content-center gap-2" id="submitBtn">
       <i class="bi bi-send-fill"></i>
-      <span>Transmitir Mensaje Largo</span>
+      <span>Transmitir a la Matriz</span>
     </button>
   </form>
 
@@ -147,14 +135,51 @@
 </div>
 
 <script>
-  // URL DEL SCRIPT DE GOOGLE (Reemplazar con la tuya)
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzjY-RV8xyq_nFpt3HRUB4HrHyg8w55Ypx1BJtBY09mzx0EWte-kayNNWGLh9j2EQL1OA/exec";
 
-  // =========================================================================
-  // MOTOR DE RENDERIZADO PROPORCIONAL v2.0 (Emula ESP32)
-  // =========================================================================
+  // Detección de caracteres Chinos, Japoneses o Coreanos
+  function hasCJK(text) {
+    return /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f\uac00-\ud7af]/.test(text);
+  }
 
-  // Matriz de glifos Hex correspondientes a la fuente 4x5 PROPORCIONAL
+  // Rasterizador en cliente: convierte texto CJK en columnas de 16 bits
+  function rasterizeCJK(text) {
+    const off = document.createElement('canvas');
+    const octx = off.getContext('2d', { willReadFrequently: true });
+    
+    // Configuración tipográfica para 16px
+    const fontStr = 'bold 14px "Noto Sans CJK JP", "Meiryo", "PingFang SC", "Malgun Gothic", sans-serif';
+    octx.font = fontStr;
+    const tw = Math.ceil(octx.measureText(text).width);
+    
+    off.width = tw + 2;
+    off.height = 16;
+    octx.font = fontStr;
+    octx.textBaseline = 'middle';
+    octx.fillStyle = '#ffffff';
+    octx.fillText(text, 1, 8);
+
+    const img = octx.getImageData(0, 0, off.width, 16).data;
+    let hex = "";
+    let cols = [];
+
+    for (let x = 0; x < off.width; x++) {
+      let word = 0;
+      for (let y = 0; y < 16; y++) {
+        const idx = (y * off.width + x) * 4;
+        const alpha = img[idx + 3];
+        const lum = img[idx] + img[idx + 1] + img[idx + 2];
+        if (alpha > 80 && lum > 120) {
+          word |= (1 << y);
+        }
+      }
+      cols.push(word);
+      hex += word.toString(16).padStart(4, '0').toUpperCase();
+    }
+    return { hex, cols, width: off.width };
+  }
+
+  // Glifos 4x5 Proporcionales para texto estándar y acentos
   const GLYPHS = {
     '0':[6,9,9,9,6],'1':[2,6,2,2,7],'2':[14,1,6,8,15],'3':[14,1,6,1,14],'4':[9,9,15,1,1],
     '5':[15,8,14,1,14],'6':[7,8,14,9,6],'7':[15,1,2,4,4],'8':[6,9,6,9,6],'9':[6,9,7,1,14],
@@ -164,6 +189,8 @@
     'P':[14,9,14,8,8],'Q':[6,9,9,6,1],'R':[14,9,14,10,9],'S':[7,8,6,1,14],'T':[15,6,6,6,6],
     'U':[9,9,9,9,6],'V':[9,9,9,6,6],'W':[17,17,21,27,17],'X':[9,9,6,9,9],'Y':[9,9,6,4,4],
     'Z':[15,2,4,8,15],
+    'Á':[2,6,15,9,9],'É':[2,15,14,8,15],'Í':[1,7,2,2,7],'Ó':[2,6,9,9,6],'Ú':[2,9,9,9,6],
+    'Ñ':[6,9,13,11,9],'Ü':[10,17,17,17,14],'¿':[2,0,6,8,7],'¡':[1,0,1,1,1],
     '!':[1,1,1,0,1],'.':[0,0,0,0,1],':':[0,1,0,1,0],'\'':[1,1,0,0,0],'|':[1,1,1,1,1],
     ',':[0,0,0,2,1],';':[0,2,0,2,1],'(':[1,2,2,2,1],')':[2,1,1,1,2],'[':[3,2,2,2,3],
     ']':[3,1,1,1,3],'{':[1,2,3,2,1],'}':[2,1,3,1,2],'?':[14,1,6,0,4],'-':[0,0,15,0,0],
@@ -171,17 +198,16 @@
     '&':[6,6,9,9,7],'*':[5,2,5,0,0],'/':[1,2,2,4,4],'\\':[4,2,2,1,1],'"':[5,5,0,0,0],' ':[0,0,0,0,0]
   };
 
-  // Espaciado dinámico proporcional por carácter
   function getCharWidth(c) {
     if (c === ' ') return 2;
-    if (c === '!' || c === '.' || c === ':' || c === '\'' || c === '|') return 1;
+    if (c === '!' || c === '.' || c === ':' || c === '\'' || c === '|' || c === '¡') return 1;
     if (c === ',' || c === ';' || c === '(' || c === ')' || c === '[' || c === ']' || c === '{' || c === '}') return 2;
-    if (c === 'I' || c === '1' || c === '*' || c === '^' || c === '/') return 3;
-    if (c === 'M' || c === 'W' || c === '@' || c === '%') return 5;
-    return 4; // Ancho estándar para el resto
+    if (c === 'I' || c === '1' || c === '*' || c === '^' || c === '/' || c === 'Í') return 3;
+    if (c === 'M' || c === 'W' || c === '@' || c === '%' || c === 'Ü') return 5;
+    return 4;
   }
 
-  function getMsgStringWidth(str) {
+  function getMsgWidth(str) {
     let w = 0;
     for (let c of str) w += getCharWidth(c) + 1;
     return w > 0 ? w - 1 : 0;
@@ -193,22 +219,21 @@
   const effectSelect = document.getElementById('effectSelect');
   const colorInput = document.getElementById('colorInput');
   const charCount = document.getElementById('charCount');
-  const rainbowNotice = document.getElementById('rainbowNotice');
+  const modeBadge = document.getElementById('modeBadge');
 
-  // Parámetros de visualización (simulan el espacio inferior)
   const COLS = 32;
-  const ROWS = 7; // El espacio inferior libre para el mensaje
+  const ROWS = 16;
   const LED_SIZE = 8;
   const GAP = 2;
 
-  let previewScrollX = COLS;
-  let lastScrollUpdate = 0;
+  let scrollX = COLS;
+  let lastTick = 0;
 
-  function renderPreview(timestamp) {
+  function render(timestamp) {
     ctx.fillStyle = '#05070a';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Fondo: Matriz de LEDs apagados
+    // Dibuja la cuadrícula base de 32x16 LEDs
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
         let x = c * (LED_SIZE + GAP) + 2;
@@ -220,154 +245,211 @@
       }
     }
 
-    const text = msgInput.value.toUpperCase();
+    const rawText = msgInput.value;
     const effect = effectSelect.value;
     const baseColor = colorInput.value;
-    const strW = getMsgStringWidth(text);
+    const isAsian = hasCJK(rawText);
 
-    let startX = 0;
-    let visible = true;
+    if (isAsian) {
+      modeBadge.className = "badge text-bg-warning font-monospace";
+      modeBadge.textContent = "MODO CJK 16×16";
+      
+      const cjkData = rasterizeCJK(rawText);
+      const totalW = cjkData.width;
+      let startX = 0;
+      let visible = true;
 
-    // Control de animación según el efecto (Emula loop() de ESP32)
-    if (effect === 'fixed') {
-      startX = Math.floor((COLS - strW) / 2);
-    } else if (effect === 'blink') {
-      startX = Math.floor((COLS - strW) / 2);
-      visible = Math.floor(timestamp / 450) % 2 === 0;
-    } else if (effect === 'rainbow') {
-      if (strW <= COLS) {
-        startX = Math.floor((COLS - strW) / 2);
+      if (effect === 'fixed') {
+        startX = Math.floor((COLS - totalW) / 2);
+      } else if (effect === 'blink') {
+        startX = Math.floor((COLS - totalW) / 2);
+        visible = Math.floor(timestamp / 450) % 2 === 0;
       } else {
-        if (timestamp - lastScrollUpdate > 65) { // Velocidad scroll (55ms/px aprox)
-          previewScrollX--;
-          if (previewScrollX < -strW) previewScrollX = COLS;
-          lastScrollUpdate = timestamp;
+        if (timestamp - lastTick > 50) {
+          scrollX--;
+          if (scrollX < -totalW) scrollX = COLS;
+          lastTick = timestamp;
         }
-        startX = previewScrollX;
+        startX = scrollX;
       }
-    } else { // scroll
-      if (timestamp - lastScrollUpdate > 65) {
-        previewScrollX--;
-        if (previewScrollX < -strW) previewScrollX = COLS;
-        lastScrollUpdate = timestamp;
-      }
-      startX = previewScrollX;
-    }
 
-    // Renderizado proporcional de caracteres en Y=10 (Grid Row 1)
-    if (visible && text.length > 0) {
-      let curX = startX;
-      for (let i = 0; i < text.length; i++) {
-        const char = text[i];
-        const glyph = GLYPHS[char] || GLYPHS[' ']; // defined above hex map
-        const w = getCharWidth(char); // defined above proportional map
+      if (visible) {
+        for (let col = 0; col < totalW; col++) {
+          const gridX = startX + col;
+          if (gridX >= 0 && gridX < COLS) {
+            const word = cjkData.cols[col];
+            let colColor = baseColor;
+            if (effect === 'rainbow') {
+              const hue = ((timestamp / 20) + (col * 6)) % 360;
+              colColor = `hsl(${hue}, 100%, 55%)`;
+            }
 
-        let charColor = baseColor;
-        if (effect === 'rainbow') {
-          // Emula CHSV(baseHue + (i * 18), 240, 255)
-          const hue = ((timestamp / 25) + (i * 24)) % 360; 
-          charColor = `hsl(${hue}, 100%, 55%)`;
-        }
-
-        // Dibujar glifo (5 píxeles de alto)
-        for (let r = 0; r < 5; r++) {
-          const rowBits = glyph[r];
-          for (let col = 0; col < w; col++) {
-            // Lógica de extracción de bits idéntica a drawMsgChar de Arduino
-            const bit = (rowBits & (1 << (w - 1 - col)));
-
-            if (bit) {
-              const gridX = curX + col;
-              const gridY = 1 + r; // DIBUJA EN EL ROW 1 DEL CANVAS (Simula Y=10 en la pantalla real)
-
-              // Dibujar el LED si está dentro del ancho de la pantalla
-              if (gridX >= 0 && gridX < COLS && gridY >= 0 && gridY < ROWS) {
+            for (let y = 0; y < 16; y++) {
+              if (word & (1 << y)) {
                 const px = gridX * (LED_SIZE + GAP) + 2;
-                const py = gridY * (LED_SIZE + GAP) + 2;
-
-                // Efecto glow (resplandor neón)
-                ctx.shadowColor = charColor;
+                const py = y * (LED_SIZE + GAP) + 2;
+                ctx.shadowColor = colColor;
                 ctx.shadowBlur = 6;
-                ctx.fillStyle = charColor;
+                ctx.fillStyle = colColor;
                 ctx.beginPath();
                 ctx.arc(px + LED_SIZE/2, py + LED_SIZE/2, LED_SIZE/2 - 1, 0, Math.PI * 2);
                 ctx.fill();
-                ctx.shadowBlur = 0; // Reset
+                ctx.shadowBlur = 0;
               }
             }
           }
         }
-        curX += w + 1; // Avanzar el ancho proporcional + 1 px de espacio
+      }
+    } else {
+      modeBadge.className = "badge text-bg-primary font-monospace";
+      modeBadge.textContent = "MODO ESTÁNDAR";
+
+      // Fila Superior (Simulada): "12:30  22°"
+      drawMockText(1, 2, "12:30", "#00c8ff");
+      drawMockText(18, 2, "22°", "#ffffff");
+
+      // Fila Inferior (Y=10): Mensaje proporcional con tildes
+      const text = rawText.toUpperCase();
+      const strW = getMsgWidth(text);
+      let startX = 0;
+      let visible = true;
+
+      if (effect === 'fixed') {
+        startX = Math.floor((COLS - strW) / 2);
+      } else if (effect === 'blink') {
+        startX = Math.floor((COLS - strW) / 2);
+        visible = Math.floor(timestamp / 450) % 2 === 0;
+      } else {
+        if (timestamp - lastTick > 55) {
+          scrollX--;
+          if (scrollX < -strW) scrollX = COLS;
+          lastTick = timestamp;
+        }
+        startX = scrollX;
+      }
+
+      if (visible && text.length > 0) {
+        let curX = startX;
+        for (let i = 0; i < text.length; i++) {
+          const char = text[i];
+          const glyph = GLYPHS[char] || GLYPHS[' '];
+          const w = getCharWidth(char);
+
+          let charColor = baseColor;
+          if (effect === 'rainbow') {
+            const hue = ((timestamp / 25) + (i * 24)) % 360;
+            charColor = `hsl(${hue}, 100%, 55%)`;
+          }
+
+          for (let r = 0; r < 5; r++) {
+            const rowBits = glyph[r];
+            for (let c = 0; c < w; c++) {
+              if (rowBits & (1 << (w - 1 - c))) {
+                const gx = curX + c;
+                const gy = 10 + r; // Fila inferior real
+                if (gx >= 0 && gx < COLS && gy < ROWS) {
+                  const px = gx * (LED_SIZE + GAP) + 2;
+                  const py = gy * (LED_SIZE + GAP) + 2;
+                  ctx.shadowColor = charColor;
+                  ctx.shadowBlur = 6;
+                  ctx.fillStyle = charColor;
+                  ctx.beginPath();
+                  ctx.arc(px + LED_SIZE/2, py + LED_SIZE/2, LED_SIZE/2 - 1, 0, Math.PI * 2);
+                  ctx.fill();
+                  ctx.shadowBlur = 0;
+                }
+              }
+            }
+          }
+          curX += w + 1;
+        }
       }
     }
 
-    requestAnimationFrame(renderPreview);
+    requestAnimationFrame(render);
   }
-  requestAnimationFrame(renderPreview); // Lanzar el loop de renderizado
 
-  // =========================================================================
-  // CONTROL DE INTERFAZ Y ENVÍO
-  // =========================================================================
+  function drawMockText(x, y, str, color) {
+    let curX = x;
+    for (let c of str) {
+      const g = GLYPHS[c] || GLYPHS['0'];
+      const w = 3;
+      for (let r = 0; r < 5; r++) {
+        for (let col = 0; col < w; col++) {
+          if (g[r] & (0b100 >> col)) {
+            const px = (curX + col) * (LED_SIZE + GAP) + 2;
+            const py = (y + r) * (LED_SIZE + GAP) + 2;
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(px + LED_SIZE/2, py + LED_SIZE/2, LED_SIZE/2 - 1, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+      curX += 4;
+    }
+  }
 
-  // Actualización del contador de caracteres
+  requestAnimationFrame(render);
+
   msgInput.addEventListener('input', () => {
     charCount.textContent = `${msgInput.value.length} / 100`;
-    previewScrollX = COLS; // Reset scroll si se edita
+    scrollX = COLS;
   });
 
-  effectSelect.addEventListener('change', () => {
-    previewScrollX = COLS; // Reset scroll si cambia efecto
-    rainbowNotice.classList.toggle('d-none', effectSelect.value !== 'rainbow');
+  effectSelect.addEventListener('change', () => { scrollX = COLS; });
+
+  document.querySelectorAll('.color-preset').forEach(p => {
+    p.addEventListener('click', () => { colorInput.value = p.dataset.color; });
   });
 
-  document.querySelectorAll('.color-preset').forEach(preset => {
-    preset.addEventListener('click', () => {
-      colorInput.value = preset.getAttribute('data-color');
-    });
-  });
-
-  // Envío del formulario
   const form = document.getElementById('matrixForm');
   const btn = document.getElementById('submitBtn');
   const alertBox = document.getElementById('statusAlert');
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const textVal = msgInput.value.trim();
-    if (!textVal) return;
+    const val = msgInput.value.trim();
+    if (!val) return;
 
     btn.disabled = true;
-    btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status"></span> Transmitiendo...`;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Transmitiendo...`;
     alertBox.className = "alert d-none";
 
-    // Preparar JSON según el formato esperado por Google Apps Script
-    const data = {
-      text: textVal,
+    const isAsian = hasCJK(val);
+    let payloadData = {
+      text: val,
       effect: effectSelect.value,
       color: colorInput.value
     };
 
+    // Si es CJK, se agrega la codificación hexadecimal en 16 bits
+    if (isAsian) {
+      const cjk = rasterizeCJK(val);
+      payloadData.cjk = cjk.hex;
+      payloadData.cjkCols = cjk.width;
+    } else {
+      payloadData.cjk = "";
+      payloadData.cjkCols = 0;
+    }
+
     try {
-      // POST sin CORS (no-cors) hacia la URL de Google Apps Script
       await fetch(SCRIPT_URL, {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(data)
+        body: JSON.stringify(payloadData)
       });
 
-      // Éxito
       alertBox.className = "alert alert-success mt-3 text-center small py-2 bg-success bg-opacity-25 border border-success border-opacity-50 text-white";
-      alertBox.innerHTML = `<i class="bi bi-check2-circle me-1"></i> ¡Transmitido con éxito al Google Sheet!`;
+      alertBox.innerHTML = `<i class="bi bi-check2-circle me-1"></i> ¡Transmitido correctamente!`;
     } catch (err) {
-      // Error
       alertBox.className = "alert alert-danger mt-3 text-center small py-2 bg-danger bg-opacity-25 border border-danger border-opacity-50 text-white";
-      alertBox.innerText = "Error al conectar con Google Sheets. Revisa la URL.";
+      alertBox.innerText = "Error al conectar con Google Sheets.";
     } finally {
       btn.disabled = false;
-      btn.innerHTML = `<i class="bi bi-send-fill"></i> Transmitir Mensaje Largo`;
-      // Ocultar alerta automáticamente
-      setTimeout(() => alertBox.classList.add('d-none'), 6000);
+      btn.innerHTML = `<i class="bi bi-send-fill"></i> Transmitir a la Matriz`;
+      setTimeout(() => alertBox.classList.add('d-none'), 5000);
     }
   });
 </script>
