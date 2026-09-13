@@ -6,7 +6,7 @@
   <title>Panel de Control MQTT | Matriz LED 32×16</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <!-- Librería MQTT por WebSockets -->
+  <!-- Librería MQTT sobre WebSockets -->
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <style>
     :root {
@@ -210,6 +210,38 @@
     return { hex, cols, width: off.width };
   }
 
+  // =========================================================================
+  // TIPOGRAFÍA EXACTA 3x5 (RELOJ Y TEMPERATURA)
+  // =========================================================================
+  const FONT_3X5 = {
+    '0': [0b111, 0b101, 0b101, 0b101, 0b111],
+    '1': [0b010, 0b110, 0b010, 0b010, 0b111],
+    '2': [0b111, 0b001, 0b111, 0b100, 0b111],
+    '3': [0b111, 0b001, 0b111, 0b001, 0b111],
+    '4': [0b101, 0b101, 0b111, 0b001, 0b001],
+    '5': [0b111, 0b100, 0b111, 0b001, 0b111],
+    '6': [0b111, 0b100, 0b111, 0b101, 0b111],
+    '7': [0b111, 0b001, 0b010, 0b010, 0b010],
+    '8': [0b111, 0b101, 0b111, 0b101, 0b111],
+    '9': [0b111, 0b101, 0b111, 0b001, 0b111],
+    '-': [0b000, 0b000, 0b111, 0b000, 0b000]
+  };
+
+  // Icono del Sol (5x5 animado en 3 cuadros)
+  const SUN_FRAMES = [
+    [ [0,0,1,0,0], [0,2,2,2,0], [1,2,3,2,1], [0,2,2,2,0], [0,0,1,0,0] ],
+    [ [1,0,0,0,1], [0,2,2,2,0], [0,2,3,2,0], [0,2,2,2,0], [1,0,0,0,1] ],
+    [ [0,1,0,1,0], [1,2,2,2,1], [0,2,3,2,0], [1,2,2,2,1], [0,1,0,1,0] ]
+  ];
+  const SUN_COLORS = {
+    1: '#ff6e00',
+    2: '#ffc800',
+    3: '#ffffb4'
+  };
+
+  // =========================================================================
+  // TIPOGRAFÍA 4x5 PROPORCIONAL (MENSAJES Y ACENTOS)
+  // =========================================================================
   const GLYPHS = {
     '0':[6,9,9,9,6],'1':[2,6,2,2,7],'2':[14,1,6,8,15],'3':[14,1,6,1,14],'4':[9,9,15,1,1],
     '5':[15,8,14,1,14],'6':[7,8,14,9,6],'7':[15,1,2,4,4],'8':[6,9,6,9,6],'9':[6,9,7,1,14],
@@ -259,10 +291,39 @@
   let scrollX = COLS;
   let lastTick = 0;
 
+  // Dibuja un LED individual con brillo
+  function drawPixel(gx, gy, color) {
+    if (gx < 0 || gx >= COLS || gy < 0 || gy >= ROWS) return;
+    const px = gx * (LED_SIZE + GAP) + 2;
+    const py = gy * (LED_SIZE + GAP) + 2;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 5;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(px + LED_SIZE/2, py + LED_SIZE/2, LED_SIZE/2 - 1, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  // Dibuja un dígito exacto 3x5
+  function drawDigit3x5(startX, startY, digitChar, color) {
+    const rows = FONT_3X5[digitChar];
+    if (!rows) return 3;
+    for (let r = 0; r < 5; r++) {
+      for (let c = 0; c < 3; c++) {
+        if (rows[r] & (0b100 >> c)) {
+          drawPixel(startX + c, startY + r, color);
+        }
+      }
+    }
+    return 3;
+  }
+
   function render(timestamp) {
     ctx.fillStyle = '#05070a';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // Fondo de LEDs apagados
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
         let x = c * (LED_SIZE + GAP) + 2;
@@ -305,26 +366,16 @@
       if (visible) {
         for (let col = 0; col < totalW; col++) {
           const gridX = startX + col;
-          if (gridX >= 0 && gridX < COLS) {
-            const word = cjkData.cols[col];
-            let colColor = baseColor;
-            if (effect === 'rainbow') {
-              const hue = ((timestamp / 20) + (col * 6)) % 360;
-              colColor = `hsl(${hue}, 100%, 55%)`;
-            }
+          const word = cjkData.cols[col];
+          let colColor = baseColor;
+          if (effect === 'rainbow') {
+            const hue = ((timestamp / 20) + (col * 6)) % 360;
+            colColor = `hsl(${hue}, 100%, 55%)`;
+          }
 
-            for (let y = 0; y < 16; y++) {
-              if (word & (1 << y)) {
-                const px = gridX * (LED_SIZE + GAP) + 2;
-                const py = y * (LED_SIZE + GAP) + 2;
-                ctx.shadowColor = colColor;
-                ctx.shadowBlur = 6;
-                ctx.fillStyle = colColor;
-                ctx.beginPath();
-                ctx.arc(px + LED_SIZE/2, py + LED_SIZE/2, LED_SIZE/2 - 1, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
-              }
+          for (let y = 0; y < 16; y++) {
+            if (word & (1 << y)) {
+              drawPixel(gridX, y, colColor);
             }
           }
         }
@@ -333,9 +384,60 @@
       modeBadge.className = "badge text-bg-primary font-monospace";
       modeBadge.textContent = "MODO ESTÁNDAR";
 
-      drawMockText(1, 2, "12:30", "#00c8ff");
-      drawMockText(18, 2, "22°", "#ffffff");
+      // =========================================================================
+      // FILA SUPERIOR (Y=2): RELOJ EN VIVO + CLIMA + ICONO (CALIBRADO AL PIXEL)
+      // =========================================================================
+      const d = new Date();
+      const h = d.getHours();
+      const m = d.getMinutes();
+      const hTens = Math.floor(h / 10).toString();
+      const hUnits = (h % 10).toString();
+      const mTens = Math.floor(m / 10).toString();
+      const mUnits = (m % 10).toString();
 
+      const timeColor = "#00c8ff"; // Cian
+      const colonColor = "#c828ff"; // Magenta
+
+      // Horas: X=0 y X=4
+      drawDigit3x5(0, 2, hTens, timeColor);
+      drawDigit3x5(4, 2, hUnits, timeColor);
+
+      // Dos puntos parpadeantes en X=7
+      if (Math.floor(Date.now() / 500) % 2 === 0) {
+        drawPixel(7, 3, colonColor);
+        drawPixel(7, 5, colonColor);
+      }
+
+      // Minutos: X=8 y X=12
+      drawDigit3x5(8, 2, mTens, timeColor);
+      drawDigit3x5(12, 2, mUnits, timeColor);
+
+      // Temperatura simulada (22°): X=17 y X=21
+      const tempColor = "#ffffff";
+      drawDigit3x5(17, 2, "2", tempColor);
+      drawDigit3x5(21, 2, "2", tempColor);
+
+      // Símbolo de grados 2x2 en X=25..26, Y=2..3
+      drawPixel(25, 2, tempColor);
+      drawPixel(26, 2, tempColor);
+      drawPixel(25, 3, tempColor);
+      drawPixel(26, 3, tempColor);
+
+      // Icono de Sol animado en X=27..31, Y=2..6
+      const frame = Math.floor(timestamp / 250) % 3;
+      const sunMatrix = SUN_FRAMES[frame];
+      for (let r = 0; r < 5; r++) {
+        for (let c = 0; c < 5; c++) {
+          const val = sunMatrix[r][c];
+          if (val > 0) {
+            drawPixel(27 + c, 2 + r, SUN_COLORS[val]);
+          }
+        }
+      }
+
+      // =========================================================================
+      // FILA INFERIOR (Y=10): MARQUESINA DEL MENSAJE
+      // =========================================================================
       const text = rawText.toUpperCase();
       const strW = getMsgWidth(text);
       let startX = 0;
@@ -372,19 +474,7 @@
             const rowBits = glyph[r];
             for (let c = 0; c < w; c++) {
               if (rowBits & (1 << (w - 1 - c))) {
-                const gx = curX + c;
-                const gy = 10 + r;
-                if (gx >= 0 && gx < COLS && gy < ROWS) {
-                  const px = gx * (LED_SIZE + GAP) + 2;
-                  const py = gy * (LED_SIZE + GAP) + 2;
-                  ctx.shadowColor = charColor;
-                  ctx.shadowBlur = 6;
-                  ctx.fillStyle = charColor;
-                  ctx.beginPath();
-                  ctx.arc(px + LED_SIZE/2, py + LED_SIZE/2, LED_SIZE/2 - 1, 0, Math.PI * 2);
-                  ctx.fill();
-                  ctx.shadowBlur = 0;
-                }
+                drawPixel(curX + c, 10 + r, charColor);
               }
             }
           }
@@ -394,27 +484,6 @@
     }
 
     requestAnimationFrame(render);
-  }
-
-  function drawMockText(x, y, str, color) {
-    let curX = x;
-    for (let c of str) {
-      const g = GLYPHS[c] || GLYPHS['0'];
-      const w = 3;
-      for (let r = 0; r < 5; r++) {
-        for (let col = 0; col < w; col++) {
-          if (g[r] & (0b100 >> col)) {
-            const px = (curX + col) * (LED_SIZE + GAP) + 2;
-            const py = (y + r) * (LED_SIZE + GAP) + 2;
-            ctx.fillStyle = color;
-            ctx.beginPath();
-            ctx.arc(px + LED_SIZE/2, py + LED_SIZE/2, LED_SIZE/2 - 1, 0, Math.PI * 2);
-            ctx.fill();
-          }
-        }
-      }
-      curX += 4;
-    }
   }
 
   requestAnimationFrame(render);
@@ -461,12 +530,12 @@
 
     const jsonString = JSON.stringify(payloadData);
 
-    // 1. Envío instantáneo por MQTT (Push)
+    // 1. Envío instantáneo por MQTT
     if (client.connected) {
       client.publish(MQTT_TOPIC, jsonString, { qos: 0 });
     }
 
-    // 2. Guardado en Google Sheets (Respaldo en nube)
+    // 2. Respaldo en la hoja de cálculo
     try {
       await fetch(SCRIPT_URL, {
         method: "POST",
