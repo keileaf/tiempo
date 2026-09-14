@@ -26,7 +26,7 @@
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 1.25rem;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
-      max-width: 540px;
+      max-width: 560px;
       width: 100%;
     }
     .matrix-bezel {
@@ -125,7 +125,7 @@
       </div>
     </div>
 
-    <div class="row g-2 mb-3 align-items-end">
+    <div class="row g-2 mb-3">
       <div class="col-sm-6">
         <div class="d-flex justify-content-between small mb-1">
           <label for="speedRange" class="fw-semibold text-light">Velocidad</label>
@@ -134,17 +134,26 @@
         <input type="range" class="form-range" id="speedRange" min="15" max="100" step="5" value="50">
       </div>
 
-      <div class="col-sm-6" id="solidColorGroup">
-        <label class="form-label small fw-semibold text-light mb-1">Color Base</label>
-        <div class="d-flex align-items-center gap-2">
-          <input type="color" class="form-control form-control-color border-0 p-1" id="colorInput" value="#00ff66">
-          <div class="d-flex gap-2 ms-2">
-            <div class="color-preset" style="background:#00ff66;" data-color="#00ff66"></div>
-            <div class="color-preset" style="background:#00d9ff;" data-color="#00d9ff"></div>
-            <div class="color-preset" style="background:#bd00ff;" data-color="#bd00ff"></div>
-            <div class="color-preset" style="background:#ff0055;" data-color="#ff0055"></div>
-            <div class="color-preset" style="background:#ffb700;" data-color="#ffb700"></div>
-          </div>
+      <div class="col-sm-6">
+        <div class="d-flex justify-content-between small mb-1">
+          <label for="brightnessRange" class="fw-semibold text-light">Intensidad / Brillo</label>
+          <span id="brightnessValue" class="text-warning font-monospace">100%</span>
+        </div>
+        <input type="range" class="form-range" id="brightnessRange" min="10" max="100" step="5" value="100">
+      </div>
+    </div>
+
+    <div class="mb-4" id="solidColorGroup">
+      <label class="form-label small fw-semibold text-light mb-1">Color Base</label>
+      <div class="d-flex align-items-center gap-2">
+        <input type="color" class="form-control form-control-color border-0 p-1" id="colorInput" value="#00ff66">
+        <div class="d-flex gap-2 ms-2">
+          <div class="color-preset" style="background:#00ff66;" data-color="#00ff66"></div>
+          <div class="color-preset" style="background:#00d9ff;" data-color="#00d9ff"></div>
+          <div class="color-preset" style="background:#bd00ff;" data-color="#bd00ff"></div>
+          <div class="color-preset" style="background:#ff0055;" data-color="#ff0055"></div>
+          <div class="color-preset" style="background:#ffb700;" data-color="#ffb700"></div>
+          <div class="color-preset" style="background:#ffffff;" data-color="#ffffff"></div>
         </div>
       </div>
     </div>
@@ -238,29 +247,21 @@
   ];
   const SUN_COLORS = { 1: '#ff6e00', 2: '#ffc800', 3: '#ffffb4' };
 
-  // DICCIONARIO COMPLETO: MAYÚSCULAS, MINÚSCULAS Y SIGNOS
   const GLYPHS = {
-    // Minúsculas (a-z)
     'a':[0,6,1,7,5], 'b':[4,6,5,5,6], 'c':[0,3,4,4,3], 'd':[1,3,5,5,3], 'e':[0,6,7,4,3],
     'f':[3,2,7,2,2], 'g':[3,5,3,1,6], 'h':[4,6,5,5,5], 'i':[1,0,1,1,1], 'j':[1,0,1,1,2],
     'k':[4,5,6,5,5], 'l':[1,1,1,1,1], 'm':[0,26,21,21,21], 'n':[0,6,5,5,5], 'o':[0,2,5,5,2],
     'p':[6,5,6,4,4], 'q':[3,5,3,1,1], 'r':[0,5,6,4,4], 's':[0,3,6,1,6], 't':[2,7,2,2,1],
     'u':[0,5,5,5,3], 'v':[0,5,5,5,2], 'w':[0,17,21,21,10], 'x':[0,5,2,5,5], 'y':[5,5,3,1,6],
     'z':[0,7,2,4,7],
-
-    // Mayúsculas
     'A':[6,9,15,9,9],'B':[14,9,14,9,14],'C':[7,8,8,8,7],'D':[14,9,9,9,14],'E':[15,8,14,8,15],
     'F':[15,8,14,8,8],'G':[7,8,11,9,7],'H':[9,9,15,9,9],'I':[7,2,2,2,7],'J':[3,1,1,9,6],
     'K':[9,10,12,10,9],'L':[8,8,8,8,15],'M':[17,27,21,17,17],'N':[9,13,11,9,9],'O':[6,9,9,9,6],
     'P':[14,9,14,8,8],'Q':[6,9,9,6,1],'R':[14,9,14,10,9],'S':[7,8,6,1,14],'T':[15,6,6,6,6],
     'U':[9,9,9,9,6],'V':[9,9,9,6,6],'W':[17,17,21,27,17],'X':[9,9,6,9,9],'Y':[9,9,6,4,4],
     'Z':[15,2,4,8,15],
-
-    // Números
     '0':[6,9,9,9,6],'1':[2,6,2,2,7],'2':[14,1,6,8,15],'3':[14,1,6,1,14],'4':[9,9,15,1,1],
     '5':[15,8,14,1,14],'6':[7,8,14,9,6],'7':[15,1,2,4,4],'8':[6,9,6,9,6],'9':[6,9,7,1,14],
-
-    // Acentos y Símbolos
     'Á':[2,6,15,9,9],'É':[2,15,14,8,15],'Í':[1,7,2,2,7],'Ó':[2,6,9,9,6],'Ú':[2,9,9,9,6],
     'Ñ':[6,9,13,11,9],'Ü':[10,17,17,17,14],'¿':[2,0,6,8,7],'¡':[1,0,1,1,1],
     '!':[1,1,1,0,1],'.':[0,0,0,0,1],':':[0,1,0,1,0],'\'':[1,1,0,0,0],'|':[1,1,1,1,1],
@@ -292,6 +293,8 @@
   const colorModeSelect = document.getElementById('colorModeSelect');
   const speedRange = document.getElementById('speedRange');
   const speedValue = document.getElementById('speedValue');
+  const brightnessRange = document.getElementById('brightnessRange');
+  const brightnessValue = document.getElementById('brightnessValue');
   const colorInput = document.getElementById('colorInput');
   const charCount = document.getElementById('charCount');
   const modeBadge = document.getElementById('modeBadge');
@@ -306,14 +309,21 @@
     speedValue.textContent = `${speedRange.value} ms`;
   });
 
+  brightnessRange.addEventListener('input', () => {
+    brightnessValue.textContent = `${brightnessRange.value}%`;
+  });
+
   function drawPixel(gx, gy, color, alpha = 1.0) {
     if (gx < 0 || gx >= COLS || gy < 0 || gy >= ROWS) return;
+    const globalScale = parseInt(brightnessRange.value, 10) / 100;
+    const effectiveAlpha = Math.max(0.08, alpha * globalScale);
+
     const px = gx * (LED_SIZE + GAP) + 2;
     const py = gy * (LED_SIZE + GAP) + 2;
     ctx.save();
-    ctx.globalAlpha = alpha;
+    ctx.globalAlpha = effectiveAlpha;
     ctx.shadowColor = color;
-    ctx.shadowBlur = 4;
+    ctx.shadowBlur = 4 * effectiveAlpha;
     ctx.fillStyle = color;
     ctx.beginPath();
     ctx.arc(px + LED_SIZE/2, py + LED_SIZE/2, LED_SIZE/2 - 1, 0, Math.PI * 2);
@@ -384,7 +394,7 @@
           lastTick = timestamp;
         }
         startX = bounceX;
-      } else { // scroll
+      } else {
         if (timestamp - lastTick > currentSpeed) {
           scrollX--;
           if (scrollX < -totalW) scrollX = COLS;
@@ -415,7 +425,6 @@
       modeBadge.className = "badge text-bg-primary font-monospace";
       modeBadge.textContent = "MODO ESTÁNDAR";
 
-      // Fila Superior (Y=2): Reloj y Clima
       const d = new Date();
       const h = d.getHours(), m = d.getMinutes();
       drawDigit3x5(0, 2, Math.floor(h / 10).toString(), "#00c8ff");
@@ -438,7 +447,6 @@
         }
       }
 
-      // Fila Inferior (Y=10): Mensaje (Conserva minúsculas y mayúsculas)
       const text = rawText; 
       const strW = getMsgWidth(text);
       let startX = 0;
@@ -548,7 +556,8 @@
       effect: effectSelect.value,
       color: colorInput.value,
       colorMode: colorModeSelect.value,
-      speed: parseInt(speedRange.value, 10)
+      speed: parseInt(speedRange.value, 10),
+      brightness: parseInt(brightnessRange.value, 10)
     };
 
     if (isAsian) {
