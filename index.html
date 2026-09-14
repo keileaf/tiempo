@@ -105,17 +105,27 @@
 
     <div class="row g-2 mb-3">
       <div class="col-sm-6">
-        <label for="effectSelect" class="form-label small fw-semibold text-light mb-1">Efecto visual</label>
+        <label for="effectSelect" class="form-label small fw-semibold text-light mb-1">Animación</label>
         <select class="form-select" id="effectSelect">
           <option value="scroll" selected>Desplazamiento</option>
           <option value="bounce">Rebote (Bounce)</option>
           <option value="pulse">Pulsación (Respiración)</option>
           <option value="fixed">Fijo centrado</option>
           <option value="blink">Parpadeo</option>
-          <option value="rainbow">Arcoíris</option>
         </select>
       </div>
 
+      <div class="col-sm-6">
+        <label for="colorModeSelect" class="form-label small fw-semibold text-light mb-1">Estilo de Color</label>
+        <select class="form-select" id="colorModeSelect">
+          <option value="solid" selected>Color Sólido</option>
+          <option value="rainbow_wave">🌈 Arcoíris en Onda</option>
+          <option value="rainbow_cycle">🌈 Arcoíris Cíclico</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row g-2 mb-3 align-items-end">
       <div class="col-sm-6">
         <div class="d-flex justify-content-between small mb-1">
           <label for="speedRange" class="fw-semibold text-light">Velocidad</label>
@@ -123,19 +133,18 @@
         </div>
         <input type="range" class="form-range" id="speedRange" min="15" max="100" step="5" value="50">
       </div>
-    </div>
 
-    <div class="mb-4">
-      <label class="form-label small fw-semibold text-light mb-2">Color del Texto</label>
-      <div class="d-flex align-items-center gap-2">
-        <input type="color" class="form-control form-control-color border-0 p-1" id="colorInput" value="#00ff66">
-        <div class="d-flex gap-2 ms-2">
-          <div class="color-preset" style="background:#00ff66;" data-color="#00ff66"></div>
-          <div class="color-preset" style="background:#00d9ff;" data-color="#00d9ff"></div>
-          <div class="color-preset" style="background:#bd00ff;" data-color="#bd00ff"></div>
-          <div class="color-preset" style="background:#ff0055;" data-color="#ff0055"></div>
-          <div class="color-preset" style="background:#ffb700;" data-color="#ffb700"></div>
-          <div class="color-preset" style="background:#ffffff;" data-color="#ffffff"></div>
+      <div class="col-sm-6" id="solidColorGroup">
+        <label class="form-label small fw-semibold text-light mb-1">Color Base</label>
+        <div class="d-flex align-items-center gap-2">
+          <input type="color" class="form-control form-control-color border-0 p-1" id="colorInput" value="#00ff66">
+          <div class="d-flex gap-2 ms-2">
+            <div class="color-preset" style="background:#00ff66;" data-color="#00ff66"></div>
+            <div class="color-preset" style="background:#00d9ff;" data-color="#00d9ff"></div>
+            <div class="color-preset" style="background:#bd00ff;" data-color="#bd00ff"></div>
+            <div class="color-preset" style="background:#ff0055;" data-color="#ff0055"></div>
+            <div class="color-preset" style="background:#ffb700;" data-color="#ffb700"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -166,6 +175,11 @@
   client.on('offline', () => {
     mqttBadge.className = "badge text-bg-warning font-monospace";
     mqttBadge.textContent = "MQTT Offline";
+  });
+
+  client.on('error', (err) => {
+    mqttBadge.className = "badge text-bg-danger font-monospace";
+    mqttBadge.textContent = "MQTT Error";
   });
 
   function hasCJK(text) {
@@ -260,6 +274,7 @@
   const ctx = canvas.getContext('2d');
   const msgInput = document.getElementById('msgInput');
   const effectSelect = document.getElementById('effectSelect');
+  const colorModeSelect = document.getElementById('colorModeSelect');
   const speedRange = document.getElementById('speedRange');
   const speedValue = document.getElementById('speedValue');
   const colorInput = document.getElementById('colorInput');
@@ -319,6 +334,7 @@
 
     const rawText = msgInput.value;
     const effect = effectSelect.value;
+    const colorMode = colorModeSelect.value;
     const baseColor = colorInput.value;
     const currentSpeed = parseInt(speedRange.value, 10);
     const isAsian = hasCJK(rawText);
@@ -341,13 +357,19 @@
         alpha = 0.2 + 0.8 * (0.5 + 0.5 * Math.sin(timestamp / 300));
       } else if (effect === 'bounce') {
         if (timestamp - lastTick > currentSpeed) {
-          bounceX += bounceDir;
-          if (bounceX + totalW >= COLS) { bounceX = COLS - totalW; bounceDir = -1; }
-          if (bounceX <= 0) { bounceX = 0; bounceDir = 1; }
+          if (totalW <= COLS) {
+            bounceX += bounceDir;
+            if (bounceX + totalW >= COLS) { bounceX = COLS - totalW; bounceDir = -1; }
+            if (bounceX <= 0) { bounceX = 0; bounceDir = 1; }
+          } else {
+            bounceX += bounceDir;
+            if (bounceX <= (COLS - totalW)) { bounceX = COLS - totalW; bounceDir = 1; }
+            if (bounceX >= 0) { bounceX = 0; bounceDir = -1; }
+          }
           lastTick = timestamp;
         }
         startX = bounceX;
-      } else { // scroll y rainbow
+      } else { // scroll
         if (timestamp - lastTick > currentSpeed) {
           scrollX--;
           if (scrollX < -totalW) scrollX = COLS;
@@ -361,10 +383,14 @@
           const gridX = startX + col;
           const word = cjkData.cols[col];
           let colColor = baseColor;
-          if (effect === 'rainbow') {
+          if (colorMode === 'rainbow_wave') {
             const hue = ((timestamp / 20) + (col * 6)) % 360;
             colColor = `hsl(${hue}, 100%, 55%)`;
+          } else if (colorMode === 'rainbow_cycle') {
+            const hue = (timestamp / 20) % 360;
+            colColor = `hsl(${hue}, 100%, 55%)`;
           }
+
           for (let y = 0; y < 16; y++) {
             if (word & (1 << y)) drawPixel(gridX, y, colColor, alpha);
           }
@@ -413,9 +439,15 @@
         alpha = 0.2 + 0.8 * (0.5 + 0.5 * Math.sin(timestamp / 300));
       } else if (effect === 'bounce') {
         if (timestamp - lastTick > currentSpeed) {
-          bounceX += bounceDir;
-          if (bounceX + strW >= COLS) { bounceX = COLS - strW; bounceDir = -1; }
-          if (bounceX <= 0) { bounceX = 0; bounceDir = 1; }
+          if (strW <= COLS) {
+            bounceX += bounceDir;
+            if (bounceX + strW >= COLS) { bounceX = COLS - strW; bounceDir = -1; }
+            if (bounceX <= 0) { bounceX = 0; bounceDir = 1; }
+          } else {
+            bounceX += bounceDir;
+            if (bounceX <= (COLS - strW)) { bounceX = COLS - strW; bounceDir = 1; }
+            if (bounceX >= 0) { bounceX = 0; bounceDir = -1; }
+          }
           lastTick = timestamp;
         }
         startX = bounceX;
@@ -435,10 +467,14 @@
           const glyph = GLYPHS[char] || GLYPHS[' '];
           const w = getCharWidth(char);
           let charColor = baseColor;
-          if (effect === 'rainbow') {
-            const hue = ((timestamp / 25) + (i * 24)) % 360;
+          if (colorMode === 'rainbow_wave') {
+            const hue = ((timestamp / 20) + (i * 24)) % 360;
+            charColor = `hsl(${hue}, 100%, 55%)`;
+          } else if (colorMode === 'rainbow_cycle') {
+            const hue = (timestamp / 20) % 360;
             charColor = `hsl(${hue}, 100%, 55%)`;
           }
+
           for (let r = 0; r < 5; r++) {
             const rowBits = glyph[r];
             for (let c = 0; c < w; c++) {
@@ -466,8 +502,16 @@
     scrollX = COLS; bounceX = 0; bounceDir = 1;
   });
 
+  colorModeSelect.addEventListener('change', () => {
+    document.getElementById('solidColorGroup').style.opacity = colorModeSelect.value === 'solid' ? '1' : '0.5';
+  });
+
   document.querySelectorAll('.color-preset').forEach(p => {
-    p.addEventListener('click', () => { colorInput.value = p.dataset.color; });
+    p.addEventListener('click', () => { 
+      colorInput.value = p.dataset.color;
+      colorModeSelect.value = 'solid';
+      document.getElementById('solidColorGroup').style.opacity = '1';
+    });
   });
 
   const form = document.getElementById('matrixForm');
@@ -488,6 +532,7 @@
       text: val,
       effect: effectSelect.value,
       color: colorInput.value,
+      colorMode: colorModeSelect.value,
       speed: parseInt(speedRange.value, 10)
     };
 
